@@ -1,8 +1,9 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
+
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use mdns::mdns_scanner;
 use tauri::Window;
 
+static mut PORT: u16 = 0;
 
 #[derive(Clone, serde::Serialize)]
 struct ReceivePayload {
@@ -10,25 +11,61 @@ struct ReceivePayload {
   sender_name: String,
 }
 
-#[derive(Clone, serde::Serialize)]
+#[derive(Clone, serde::Serialize,Debug)]
 struct ReceivedPayload{
     bytes_received:u64,
-    sender_name:String
+    sender_name:String,
+    file_name:String
 }
 
 #[tauri::command]
-async fn receive(window: Window){
+ async  fn receive(window: Window){
     let mut receiver = tcp::Receiver::new("anbu");
-    receiver.listen_on("8999",window).await.unwrap();
+    let cloned_window = window.clone();
+    let handle = tokio::spawn(async move {
+        unsafe{let port = format!("{}",PORT);
+    receiver.listen_on(port,cloned_window).await.unwrap();}
+    });
+    window.listen("stop_receiver", move|_event|{
+        handle.abort();
+        println!("Receiver stopped...");
+    });
+    // #[tauri::command]
+    // fn stop_server<F:Fn()> (f:F){
+    //     // handle.abort();
+    //     f();
+    //     println!("Receiver stopped");
+    // }
+
+    // stop_server(||{
+    //     handle.abort();
+    // });
 }
 
+async fn find_unused_port() -> u16 {
+    let mut port = 8000 as i32;
+    loop {
+        let address = format!("0.0.0.0:{}", port);
+        let stream = tokio::net::TcpListener::bind(&address).await;
+        if let Ok(_) = stream {
+            println!("Port {} is available", port);
+            break;
+        }
+        println!("Port {} is not available", port);
+        port += 1;
+        println!("Incremented port: {:?}", port);
+    }
+    unsafe{PORT = port as u16;}
+    port as u16
+}
 
 mod tcp;
 mod mdns;
 mod utils;
 
-fn main() {
-    let port =8999;
+#[tokio::main]
+async fn main() {
+    let port =find_unused_port().await;
     let responder = libmdns::Responder::new().unwrap();
     let _svc = responder.register("_fileshare._tcp".into(),"_fileshare._tcp.local".into(),port,&["hello anbu"]);
     

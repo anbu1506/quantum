@@ -92,7 +92,7 @@ impl<'a> Sender<'a>{
 pub struct Receiver<'a>{
     name:String,
     my_ip:&'a str,
-    my_port:&'a str,
+    my_port:String,
     sender_streams_addr:Vec<String>,
     files:Vec<String>,
 }
@@ -106,7 +106,7 @@ impl<'a> Receiver<'a>{
         Receiver{
             name,
             my_ip:"0.0.0.0",
-            my_port:"8080",
+            my_port:"8080".to_owned(),
             sender_streams_addr:vec![],
             files:vec![],
         }
@@ -120,10 +120,10 @@ impl<'a> Receiver<'a>{
         
     }
 
-    pub async fn listen_on(&mut self,port:&'a str,window: Window)->Result<(),Box<dyn std::error::Error>>{
+    pub async fn listen_on(&mut self,port:String,window: Window)->Result<(),Box<dyn std::error::Error>>{
         self.my_port=port;
-        let listener = TcpListener::bind(self.my_ip.to_owned()+":"+self.my_port).await?;
-        println!("Listening on port {}",port);
+        let listener = TcpListener::bind(self.my_ip.to_owned()+":"+self.my_port.as_str()).await?;
+        println!("Listening on port {}",self.my_port);
         let mut handles = vec![];
         let mut i=0;
         loop{
@@ -162,7 +162,9 @@ impl<'a> Receiver<'a>{
         let mut dest_file = create_or_incnum(download_path).await?;
         let bytes_transferred = copy( stream, &mut dest_file).await?;
         println!("Received {} bytes from {} .", bytes_transferred,sender_name);
-        window.emit("onReceived",ReceivedPayload{bytes_received:bytes_transferred,sender_name:sender_name.to_string()}).unwrap();
+        let received_payload = ReceivedPayload{file_name:file_name.clone(),bytes_received:bytes_transferred,sender_name:sender_name.to_string()};
+        println!("received payload {:?}",received_payload);
+        window.emit("onReceived",received_payload).unwrap();
         Ok(file_name)
     }
 }

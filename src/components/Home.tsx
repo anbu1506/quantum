@@ -1,10 +1,6 @@
-import { invoke } from "@tauri-apps/api";
 import { Link } from "react-router-dom";
 
 export const Home = () => {
-  invoke("receive").catch((err) => {
-    console.log(err);
-  });
   return (
     <div className="h-screen bg-slate-950 grid grid-rows-2 text-white">
       <div className="flex items-center justify-center">

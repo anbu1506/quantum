@@ -8,8 +8,8 @@ function App() {
   return (
     <>
       <div className="bg-slate-950">
-        <Nav></Nav>
         <Router>
+          <Nav></Nav>
           <Routes>
             <Route path="/" element={<Home />}></Route>
             <Route path="/send" element={<Send />}></Route>

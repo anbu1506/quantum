@@ -1,7 +1,9 @@
+import { Link } from "react-router-dom";
+
 export const Nav = () => {
   return (
     <div className="fixed top-0 left-0 h-12 bg-black items-center flex w-full">
-      <a href="/" className="text-white flex gap-1">
+      <Link to="/" className="text-white flex gap-1">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -17,7 +19,7 @@ export const Nav = () => {
           />
         </svg>
         Home
-      </a>
+      </Link>
     </div>
   );
 };

@@ -11,8 +11,10 @@ export type ReceivedPayload = {
   sender_name: String;
 };
 
-type ReceiveQueue = ReceivePayload &
-  ReceivedPayload & { haveReceived: boolean };
+type ReceiveQueue = ReceivePayload & {
+  have_received: boolean;
+  bytes_received: Number;
+};
 
 type MyContextType = {
   receiveQueue: ReceiveQueue[];
@@ -29,15 +31,9 @@ export const QueueContextProvider = ({
 }) => {
   const [receiveQueue, setReceiveQueue] = useState<ReceiveQueue[]>([]);
   const addToReceiveQueue = (item: ReceivePayload) => {
-    // const news = [
-    //   ...receiveQueue,
-    //   { ...item, haveReceived: false, bytes_received: 0 },
-    // ];
     setReceiveQueue((prev) => {
-      //   console.log(prev, item);
-      return [...prev, { ...item, haveReceived: false, bytes_received: 0 }];
+      return [...prev, { ...item, have_received: false, bytes_received: 0 }];
     });
-    console.log(receiveQueue);
   };
   const markReceived = (item: ReceivedPayload) => {
     console.log(receiveQueue);
@@ -51,7 +47,7 @@ export const QueueContextProvider = ({
         return {
           ...files,
           bytes_received: item.bytes_received,
-          haveReceived: true,
+          have_received: true,
         };
       }
       return files;
