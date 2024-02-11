@@ -1,5 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 import { useState } from "react";
+import { SelectFiles } from "./SelectFiles";
+import { SenderAtom } from "./SenderAtom";
 type Receivers = String[];
 export const Send = () => {
   const [receivers, setReceivers] = useState<Receivers[]>([]);
@@ -37,6 +39,8 @@ export const Send = () => {
         console.log(err);
       });
   };
+
+  const send = (userName: String, ip: String, port: String) => {};
   return (
     <div className="h-screen pt-12 text-white">
       <button className="flex justify-center w-full">
@@ -65,21 +69,12 @@ export const Send = () => {
         <>
           {receivers.map((receiver, idx) => {
             return (
-              <div className="text-black" key={idx}>
-                <div className="h-24 bg-white mx-5 my-4 rounded-sm">
-                  <div className="grid grid-rows-2 h-full">
-                    <div className="grid grid-cols-3 items-center text-center">
-                      <div className="text-black">{receiver[2]}</div>
-                      <div className="text-black">{receiver[0]}</div>
-                      <div className="text-black">{receiver[1]}</div>
-                    </div>
-                    <div className="text-white flex justify-center items-center">
-                      <button className=" bg-indigo-900 w-full mx-3 rounded-full">
-                        Send
-                      </button>
-                    </div>
-                  </div>
-                </div>
+              <div key={idx}>
+                {SenderAtom({
+                  ip: receiver[0],
+                  port: receiver[1],
+                  userName: receiver[2],
+                })}
               </div>
             );
           })}

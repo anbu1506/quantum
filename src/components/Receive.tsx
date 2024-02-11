@@ -31,18 +31,18 @@ export const Receive = () => {
       addToReceiveQueue(event.payload);
     });
 
-    const unlisten2 = listen<ReceivedPayload>("onReceived", (event) => {
-      console.log("hello");
-      console.log(event.payload);
+    // const unlisten2 = listen<ReceivedPayload>("onReceived", (event) => {
+    //   console.log("hello");
+    //   console.log(event.payload);
 
-      setTimeout(() => {
-        markReceived(event.payload);
-      }, 3000);
-    });
+    //   setTimeout(() => {
+    //     markReceived(event.payload);
+    //   }, 3000);
+    // });
 
     return () => {
       unlisten1.then((e) => console.log("unlisten1", e));
-      unlisten2.then((e) => console.log("unlisten1", e));
+      // unlisten2.then((e) => console.log("unlisten1", e));
     };
   }, []);
 

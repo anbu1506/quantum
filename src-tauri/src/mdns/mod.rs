@@ -1,11 +1,7 @@
-use std::{process, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 
 use mdns_sd::{ServiceDaemon, ServiceEvent};
 use tokio::sync::{mpsc, Mutex};
-pub fn mdns_offer(port:&str,name:&str){
-    let responder = libmdns::Responder::new().unwrap();
-    let _svc = responder.register("_fileshare._tcp".into(),name.into(),port.parse::<u16>().unwrap(),&[(name.to_owned()+": i'm Alive").as_str()]);
-}
 
 #[tauri::command]
 pub async fn mdns_scanner()->Vec<(String, String,String)>{

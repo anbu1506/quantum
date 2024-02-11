@@ -1,20 +1,24 @@
-use tauri::Window;
-use tokio::{io::{ copy, AsyncWriteExt, AsyncReadExt}, net::{TcpListener, TcpStream}};
+use std::sync::mpsc;
 
-use crate::{mdns::{mdns_offer, mdns_scanner}, utils::{create_or_incnum, padding, remove_padding }, ReceivePayload, ReceivedPayload};
+use tauri::{api::dialog, Window};
+use tokio::{io::{ copy, AsyncReadExt, AsyncWriteExt}, net::{TcpListener, TcpStream}};
+
+use crate::{ utils::{create_or_incnum, padding, remove_padding }, ReceivePayload, ReceivedPayload};
 
 
 
 pub struct Sender<'a>{
-    name:&'a str,
+    name:String,
     my_streams_addr:Vec<String>,
     receiver_ip:&'a str,
     receiver_port:&'a str,
-    files:Vec<&'a str>
+    files:Vec<String>
 }
 
 impl<'a> Sender<'a>{
-    pub fn new(name:&'a str)->Sender<'a>{
+    pub fn new()->Sender<'a>{
+        let  name = hostname::get().unwrap();
+        let name = name.to_str().unwrap().to_string();
         Sender{
             name,
             my_streams_addr:vec![],
@@ -24,12 +28,36 @@ impl<'a> Sender<'a>{
         }
     }
 
-    pub fn add_file(&mut self,file_name:&'a str){
-        self.files.push(file_name);
+    fn add_file(&mut self,file_name:String){
+        self.files.push(file_name.to_owned());
     }
 
-    pub async fn search_receiver(){
-            mdns_scanner().await;
+    pub async fn  select_files(&mut self) {
+        let future = async {
+            let (tx,rx) = mpsc::channel::<String>();
+            dialog::FileDialogBuilder::new()
+                .pick_files(move|pathBufs|{
+                    for pathBuf in pathBufs.unwrap(){
+                        let path = pathBuf.to_str().unwrap().to_owned();
+                        tx.send(path).unwrap();
+                    }
+                });
+
+                rx.iter().for_each(|path|{
+                    self.add_file(path);
+                });
+            
+            // let file = rfd::FileDialog::new()
+            //     .set_directory("/").pick_files();
+        
+            // let files = file.unwrap();
+
+            // for file in files {
+            //     let path = file.to_str().unwrap().to_owned();
+            //     self.add_file(path);
+            // }
+        };
+        future.await;
     }
 
     pub fn set_receiver_addr(&mut self,receiver_ip:&'a str,receiver_port:&'a str){
@@ -93,31 +121,19 @@ pub struct Receiver<'a>{
     name:String,
     my_ip:&'a str,
     my_port:String,
-    sender_streams_addr:Vec<String>,
-    files:Vec<String>,
 }
 
 
 impl<'a> Receiver<'a>{
 
-    pub fn new(name:&'a str)->Receiver<'a>{
+    pub fn new()->Receiver<'a>{
         let  name = hostname::get().unwrap();
         let name = name.to_str().unwrap().to_string();
         Receiver{
             name,
             my_ip:"0.0.0.0",
-            my_port:"8080".to_owned(),
-            sender_streams_addr:vec![],
-            files:vec![],
+            my_port:"8080".to_owned()
         }
-    }
-
-     async fn notify_all(&self){
-        println!("notifying...");
-        let port =self.my_port.to_owned();
-        let name = self.name.to_owned();
-        mdns_offer(port.as_str(),name.as_str());
-        
     }
 
     pub async fn listen_on(&mut self,port:String,window: Window)->Result<(),Box<dyn std::error::Error>>{
@@ -130,7 +146,6 @@ impl<'a> Receiver<'a>{
             let windows = window.clone();
             let (mut stream, _) = listener.accept().await?;
             println!("connection accepted from sender {}",stream.peer_addr()?);
-            self.sender_streams_addr.push(stream.peer_addr()?.to_string());
             let handle =tokio::spawn(async move{
                 Self::receive(&mut stream,windows).await.unwrap()
             });
@@ -168,34 +183,3 @@ impl<'a> Receiver<'a>{
         Ok(file_name)
     }
 }
-
-
-// pub async fn connect_to_receiver(recv_addr:&str)->Result<TcpStream, Box<dyn std::error::Error>>{
-//     println!("connecting to receiver...");
-//     let  stream = tokio::net::TcpStream::connect(recv_addr).await?;
-//     println!("connected to receiver");
-//    Ok(stream)
-// }
-
-
-
-// pub async fn start_receiver()->Result<(), Box<dyn std::error::Error>>{
-//     let listener = TcpListener::bind("127.0.0.1:8080").await?;
-//     println!("Listening on port 8080");
-//     let mut handles = vec![];
-//     let mut i=0;
-//     while i<5{
-//         let (mut stream, _) = listener.accept().await?;
-//         println!("connection accepted from sender {}",stream.peer_addr()?);
-//         let handle =tokio::spawn(async move{
-//             receive(&mut stream).await.unwrap();
-//         });
-//         handles.push(handle);
-//         i+=1;
-//     }
-//     println!("waiting for all handles to join");
-//     for handle in handles{
-//         handle.await?;
-//     }
-//     Ok(())
-// }

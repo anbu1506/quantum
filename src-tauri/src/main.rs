@@ -1,7 +1,7 @@
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use mdns::mdns_scanner;
-use tauri::Window;
+use tauri::{api::dialog, Window};
 
 static mut PORT: u16 = 0;
 
@@ -17,10 +17,16 @@ struct ReceivedPayload{
     sender_name:String,
     file_name:String
 }
-
+#[tauri::command]
+async fn send(receiver_ip:String,receiver_port:String){
+    let mut  sender = tcp::Sender::new();
+    sender.set_receiver_addr(receiver_ip.as_str(), receiver_port.as_str());
+    sender.select_files().await;
+    sender.send().await.unwrap();
+}
 #[tauri::command]
  async  fn receive(window: Window){
-    let mut receiver = tcp::Receiver::new("anbu");
+    let mut receiver = tcp::Receiver::new();
     let cloned_window = window.clone();
     let handle = tokio::spawn(async move {
         unsafe{let port = format!("{}",PORT);
@@ -70,7 +76,7 @@ async fn main() {
     let _svc = responder.register("_fileshare._tcp".into(),"_fileshare._tcp.local".into(),port,&["hello anbu"]);
     
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![mdns_scanner,receive])
+        .invoke_handler(tauri::generate_handler![mdns_scanner,receive,send])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
