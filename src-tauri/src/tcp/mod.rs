@@ -37,7 +37,7 @@ impl<'a> Sender<'a>{
             let (tx,rx) = mpsc::channel::<String>();
             dialog::FileDialogBuilder::new()
                 .pick_files(move|pathBufs|{
-                    for pathBuf in pathBufs.unwrap(){
+                    for pathBuf in pathBufs.unwrap_or_else(||vec![]){
                         let path = pathBuf.to_str().unwrap().to_owned();
                         tx.send(path).unwrap();
                     }
@@ -47,15 +47,6 @@ impl<'a> Sender<'a>{
                     self.add_file(path);
                 });
             
-            // let file = rfd::FileDialog::new()
-            //     .set_directory("/").pick_files();
-        
-            // let files = file.unwrap();
-
-            // for file in files {
-            //     let path = file.to_str().unwrap().to_owned();
-            //     self.add_file(path);
-            // }
         };
         future.await;
     }

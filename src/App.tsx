@@ -7,7 +7,7 @@ import { Nav } from "./components/Nav";
 function App() {
   return (
     <>
-      <div className="bg-slate-950">
+      <div className="bg-slate-950 h-screen">
         <Router>
           <Nav></Nav>
           <Routes>

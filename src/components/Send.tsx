@@ -1,46 +1,24 @@
-import { invoke } from "@tauri-apps/api";
-import { useState } from "react";
-import { SelectFiles } from "./SelectFiles";
+import { event, invoke } from "@tauri-apps/api";
+import { useEffect, useState } from "react";
 import { SenderAtom } from "./SenderAtom";
-type Receivers = String[];
+import { listen } from "@tauri-apps/api/event";
+import { useQueueContext } from "../context/context";
 export const Send = () => {
-  const [receivers, setReceivers] = useState<Receivers[]>([]);
   const [isloading, setIsloading] = useState(false);
-  function rowExists(array: Receivers[], row: String[]) {
-    for (let existingRow of array) {
-      if (
-        existingRow[0] === row[0] &&
-        existingRow[1] === row[1] &&
-        existingRow[2] === row[2]
-      ) {
-        return true; // Row already exists
-      }
-    }
-    return false; // Row does not exist
-  }
-  const search = () => {
-    setIsloading(true);
-    console.log("useEffect");
-    invoke("mdns_scanner")
-      .then((res) => {
-        let hosts: Receivers[] = [];
-        for (let i = 0; i < (res as Receivers[]).length; i++) {
-          if (!rowExists(hosts, (res as Receivers[])[i])) {
-            hosts.push((res as Receivers[])[i]);
-          }
-        }
+  const { receivers, searchReceivers, addToSendQueue, markSent } =
+    useQueueContext();
+  useEffect(() => {
+    let unlisten1 = listen("onSend", (event) => {
+      console.log(event.payload);
+    });
 
-        console.log(res);
-        console.log(hosts);
-        setReceivers(hosts);
-        setIsloading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+    let unlisten2 = listen("onSent", (event) => {});
 
-  const send = (userName: String, ip: String, port: String) => {};
+    return () => {
+      unlisten1.then((f) => f());
+      unlisten2.then((f) => f());
+    };
+  }, []);
   return (
     <div className="h-screen pt-12 text-white">
       <button className="flex justify-center w-full">
@@ -52,7 +30,12 @@ export const Send = () => {
           stroke-width="1.5"
           stroke="currentColor"
           className="w-6 h-6"
-          onClick={() => search()}
+          onClick={() => {
+            setIsloading(true);
+            searchReceivers().then(() => {
+              setIsloading(false);
+            });
+          }}
         >
           <path
             stroke-linecap="round"
@@ -66,20 +49,21 @@ export const Send = () => {
           <div className="h-4 w-4 border-2 border-x-blue-400 animate-spin rounded-full"></div>
         </div>
       ) : (
-        <>
-          {receivers.map((receiver, idx) => {
-            return (
-              <div key={idx}>
-                {SenderAtom({
-                  ip: receiver[0],
-                  port: receiver[1],
-                  userName: receiver[2],
-                })}
-              </div>
-            );
-          })}
-        </>
+        <></>
       )}
+      <>
+        {receivers.map((receiver, idx) => {
+          return (
+            <div key={idx}>
+              {SenderAtom({
+                ip: receiver[0],
+                port: receiver[1],
+                userName: receiver[2],
+              })}
+            </div>
+          );
+        })}
+      </>
     </div>
   );
 };

@@ -32,7 +32,7 @@ async fn send(receiver_ip:String,receiver_port:String){
         unsafe{let port = format!("{}",PORT);
     receiver.listen_on(port,cloned_window).await.unwrap();}
     });
-    window.listen("stop_receiver", move|_event|{
+    window.once("stop_receiver", move|_event|{
         handle.abort();
         println!("Receiver stopped...");
     });
