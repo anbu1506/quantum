@@ -74,7 +74,7 @@ export const Receive = () => {
                           viewBox="0 0 24 24"
                           stroke-width="1.5"
                           stroke="currentColor"
-                          className="w-8 h-8 mr-2 text-white"
+                          className="w-8 h-8 mr-2 text-green-500"
                         >
                           <path
                             stroke-linecap="round"
@@ -88,9 +88,9 @@ export const Receive = () => {
                     </div>
                   </div>
                   {transaction.have_received ? (
-                    <div className="px-4">
-                      received {transaction.bytes_received.toString()} from{" "}
-                      {transaction.file_name}
+                    <div className="px-4 text-green-600">
+                      received {transaction.bytes_received.toString()} bytes
+                      from {transaction.file_name}
                     </div>
                   ) : (
                     <></>

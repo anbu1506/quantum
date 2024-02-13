@@ -37,6 +37,7 @@ type MyContextType = {
   receiveQueue: ReceiveQueue[];
   sendQueue: SendQueue[];
   receivers: Receivers[];
+  isSearching: boolean;
   addToReceiveQueue: (payload: ReceivePayload) => void;
   markReceived: (payload: ReceivedPayload) => void;
   searchReceivers: () => void;
@@ -55,6 +56,7 @@ export const QueueContextProvider = ({
   const [receiveQueue, setReceiveQueue] = useState<ReceiveQueue[]>([]);
   const [sendQueue, setSendQueue] = useState<SendQueue[]>([]);
   const [receivers, setReceivers] = useState<Receivers[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const addToReceiveQueue = (item: ReceivePayload) => {
     setReceiveQueue((prev) => {
       return [...prev, { ...item, have_received: false, bytes_received: 0 }];
@@ -82,6 +84,7 @@ export const QueueContextProvider = ({
   };
 
   const searchReceivers = () => {
+    setIsSearching(true);
     function rowExists(array: Receivers[], row: Receivers) {
       for (let existingRow of array) {
         if (
@@ -107,6 +110,7 @@ export const QueueContextProvider = ({
           console.log(hosts);
           return hosts;
         });
+        setIsSearching(false);
       })
       .catch((err) => {
         console.log(err);
@@ -153,6 +157,7 @@ export const QueueContextProvider = ({
     receiveQueue,
     sendQueue,
     receivers,
+    isSearching,
     addToReceiveQueue,
     markReceived,
     searchReceivers,

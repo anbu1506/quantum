@@ -1,7 +1,7 @@
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use mdns::mdns_scanner;
-use tauri::{api::dialog, Window};
+use tauri:: Window;
 
 static mut PORT: u16 = 0;
 

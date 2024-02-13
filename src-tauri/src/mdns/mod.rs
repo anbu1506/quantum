@@ -13,7 +13,7 @@ pub async fn mdns_scanner()->Vec<(String, String,String)>{
     let service_type = "_fileshare._tcp.local.";
     let receiver = mdns.browse(service_type).expect("Failed to browse");
 
-    let (tx,mut rx) = mpsc::channel::<(String,String,String)>(10);
+    let (tx,mut rx) = mpsc::channel::<(String,String,String)>(100);
     
     let count = Arc::new(Mutex::new(0));
     let counter = Arc::clone(&count);

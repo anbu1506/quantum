@@ -22,12 +22,18 @@ export const SenderAtom = ({
     return transaction.receiver_ip === ip;
   });
   return (
-    <div className=" bg-white mx-5 my-4 rounded-sm text-black">
-      <div className="grid grid-rows-2 h-full">
-        <div className="grid grid-cols-3 items-center text-center">
-          <div className="text-black">{userName}</div>
-          <div className="text-black">{ip}</div>
-          <div className="text-black">{port}</div>
+    <div className=" bg-white mx-5 my-4 rounded-sm text-black shadow-xl">
+      <div className="flex flex-col h-full">
+        <div className="grid grid-cols-3 items-center text-center py-3">
+          <div className="mx-1 text-white bg-green-600 rounded-md py-1  flex-wrap text-sm">
+            {userName.toUpperCase()}
+          </div>
+          <div className="mx-1 text-white bg-blue-900 rounded-md py-1 flex-wrap text-sm">
+            {ip}
+          </div>
+          <div className="mx-1 text-white bg-yellow-600 rounded-md py-1 flex-wrap text-sm">
+            {port}
+          </div>
         </div>
         <div className="bg-white">
           {myQueue.map((transaction, idx) => {
@@ -36,7 +42,8 @@ export const SenderAtom = ({
                 <div key={idx} className="text-black">
                   <div className="flex items-center">
                     <div className="p-4 w-[310px]">
-                      sending {transaction.file_name} ...
+                      {transaction.have_sent ? "Sent" : "Sending"}{" "}
+                      {transaction.file_name} ...
                     </div>
                     <div className=" w-10 h-10">
                       {transaction.have_sent ? (
@@ -46,7 +53,7 @@ export const SenderAtom = ({
                           viewBox="0 0 24 24"
                           stroke-width="1.5"
                           stroke="currentColor"
-                          className="w-8 h-8 mr-2 text-black"
+                          className="w-8 h-8 mr-2 text-green-400"
                         >
                           <path
                             stroke-linecap="round"
@@ -59,22 +66,14 @@ export const SenderAtom = ({
                       )}
                     </div>
                   </div>
-                  {transaction.have_sent ? (
-                    <div className="px-4">
-                      sent {transaction.bytes_sent.toString()}{" "}
-                      {transaction.file_name}
-                    </div>
-                  ) : (
-                    <></>
-                  )}
                 </div>
               </>
             );
           })}
         </div>
-        <div className="text-white flex justify-center items-center h-7 my-2">
+        <div className="text-white flex items-center h-7 my-5">
           <button
-            className=" bg-indigo-900 w-full mx-3 rounded-full"
+            className=" bg-indigo-900   mx-3 rounded-md px-2 py-1 shadow-xl shadow-blue-800"
             onClick={() => {
               console.log("send");
               invoke("send", { receiverIp: ip, receiverPort: port }).catch(

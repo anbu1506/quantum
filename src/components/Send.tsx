@@ -1,11 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { SenderAtom } from "./SenderAtom";
 import { listen } from "@tauri-apps/api/event";
 import { SendPayload, SentPayload, useQueueContext } from "../context/context";
 
 export const Send = () => {
-  const { receivers, sendQueue, searchReceivers, addToSendQueue, markSent } =
-    useQueueContext();
+  const {
+    receivers,
+    sendQueue,
+    isSearching,
+    searchReceivers,
+    addToSendQueue,
+    markSent,
+  } = useQueueContext();
 
   useEffect(() => {
     let unlisten1 = listen<SendPayload>("onSend", (event) => {
@@ -52,13 +58,13 @@ export const Send = () => {
           />
         </svg>
       </button>
-      {/* {isloading ? (
+      {isSearching ? (
         <div className="flex items-center justify-center text-white">
           <div className="h-4 w-4 border-2 border-x-blue-400 animate-spin rounded-full"></div>
         </div>
       ) : (
         <></>
-      )} */}
+      )}
       <div>
         {receivers.map((receiver, idx) => {
           return (

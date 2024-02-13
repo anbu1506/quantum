@@ -1,6 +1,6 @@
 use std::sync::mpsc;
 
-use tauri::{api::dialog, window, Window};
+use tauri::{api::dialog, Window};
 use tokio::{io::{ copy, AsyncReadExt, AsyncWriteExt}, net::{TcpListener, TcpStream}};
 
 use crate::{ utils::{create_or_incnum, padding, remove_padding }, ReceivePayload, ReceivedPayload, SendPayload, SentPayload};
@@ -36,9 +36,9 @@ impl<'a> Sender<'a>{
         let future = async {
             let (tx,rx) = mpsc::channel::<String>();
             dialog::FileDialogBuilder::new()
-                .pick_files(move|pathBufs|{
-                    for pathBuf in pathBufs.unwrap_or_else(||vec![]){
-                        let path = pathBuf.to_str().unwrap().to_owned();
+                .pick_files(move|path_bufs|{
+                    for path_buf in path_bufs.unwrap_or_else(||vec![]){
+                        let path = path_buf.to_str().unwrap().to_owned();
                         tx.send(path).unwrap();
                     }
                 });
@@ -115,7 +115,6 @@ impl<'a> Sender<'a>{
 
 
 pub struct Receiver<'a>{
-    name:String,
     my_ip:&'a str,
     my_port:String,
 }
@@ -124,10 +123,7 @@ pub struct Receiver<'a>{
 impl<'a> Receiver<'a>{
 
     pub fn new()->Receiver<'a>{
-        let  name = hostname::get().unwrap();
-        let name = name.to_str().unwrap().to_string();
         Receiver{
-            name,
             my_ip:"0.0.0.0",
             my_port:"8080".to_owned()
         }
@@ -138,7 +134,6 @@ impl<'a> Receiver<'a>{
         let listener = TcpListener::bind(self.my_ip.to_owned()+":"+self.my_port.as_str()).await?;
         println!("Listening on port {}",self.my_port);
         let mut handles = vec![];
-        let mut i=0;
         loop{
             let windows = window.clone();
             let (mut stream, _) = listener.accept().await?;
@@ -147,14 +142,7 @@ impl<'a> Receiver<'a>{
                 Self::receive(&mut stream,windows).await.unwrap()
             });
             handles.push(handle);
-            i+=1;
         }
-        // println!("waiting for all handles to join");
-        // for handle in handles{
-        //     let file_name = handle.await?;
-        //     self.files.push(file_name);
-        // }
-        // Ok(())
     }
     
     async fn receive(stream:& mut TcpStream,window: Window)->Result<String, Box<dyn std::error::Error>>{
