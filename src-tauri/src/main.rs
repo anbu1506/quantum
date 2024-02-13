@@ -17,12 +17,23 @@ struct ReceivedPayload{
     sender_name:String,
     file_name:String
 }
+#[derive(Clone, serde::Serialize,Debug)]
+struct SendPayload{
+    file_name:String,
+    receiver_ip:String
+}
+#[derive(Clone, serde::Serialize,Debug)]
+struct SentPayload{
+    file_name:String,
+    receiver_ip:String,
+    bytes_sent:u64
+}
 #[tauri::command]
-async fn send(receiver_ip:String,receiver_port:String){
+async fn send(window:Window,receiver_ip:String,receiver_port:String){
     let mut  sender = tcp::Sender::new();
     sender.set_receiver_addr(receiver_ip.as_str(), receiver_port.as_str());
     sender.select_files().await;
-    sender.send().await.unwrap();
+    sender.send(window).await.unwrap();
 }
 #[tauri::command]
  async  fn receive(window: Window){

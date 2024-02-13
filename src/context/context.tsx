@@ -12,24 +12,24 @@ export type ReceivedPayload = {
   sender_name: String;
 };
 
-type ReceiveQueue = ReceivePayload & {
+export type ReceiveQueue = ReceivePayload & {
   have_received: boolean;
   bytes_received: Number;
 };
 
-type Receivers = [String, String, String];
+export type Receivers = String[];
 
-type SendPayload = {
+export type SendPayload = {
   file_name: String;
   receiver_ip: String;
 };
-type SentPayload = {
+export type SentPayload = {
   bytes_sent: Number;
   receiver_ip: String;
   file_name: String;
 };
 
-type SendQueue = SendPayload &
+export type SendQueue = SendPayload &
   SentPayload & {
     have_sent: boolean;
   };
@@ -39,7 +39,7 @@ type MyContextType = {
   receivers: Receivers[];
   addToReceiveQueue: (payload: ReceivePayload) => void;
   markReceived: (payload: ReceivedPayload) => void;
-  searchReceivers: () => Promise<void>;
+  searchReceivers: () => void;
   // getSendQueue: (receiver_ip: String) => ReceiveQueue[];
   addToSendQueue: (payload: SendPayload) => void;
   markSent: (payload: SentPayload) => void;
@@ -82,7 +82,7 @@ export const QueueContextProvider = ({
   };
 
   const searchReceivers = () => {
-    function rowExists(array: Receivers[], row: String[]) {
+    function rowExists(array: Receivers[], row: Receivers) {
       for (let existingRow of array) {
         if (
           existingRow[0] === row[0] &&
@@ -97,25 +97,30 @@ export const QueueContextProvider = ({
     invoke("mdns_scanner")
       .then((res) => {
         setReceivers((prev) => {
-          let hosts: Receivers[] = prev;
+          console.log(res);
+          let hosts: Receivers[] = [...prev];
           for (let i = 0; i < (res as Receivers[]).length; i++) {
             if (!rowExists(hosts, (res as Receivers[])[i])) {
               hosts.push((res as Receivers[])[i]);
             }
           }
+          console.log(hosts);
           return hosts;
         });
       })
       .catch((err) => {
         console.log(err);
       });
-    return new Promise<void>((resolve, reject) => {
-      resolve();
-    });
   };
   const addToSendQueue = (payload: SendPayload) => {
     setSendQueue((prev) => {
-      return [...prev, { ...payload, bytes_sent: 0, have_sent: false }];
+      console.log(payload);
+      const newQueue = [
+        ...prev,
+        { ...payload, bytes_sent: 0, have_sent: false },
+      ];
+      console.log(newQueue);
+      return newQueue;
     });
   };
   const markSent = (payload: SentPayload) => {

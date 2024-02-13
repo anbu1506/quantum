@@ -1,26 +1,36 @@
-import { event, invoke } from "@tauri-apps/api";
 import { useEffect, useState } from "react";
 import { SenderAtom } from "./SenderAtom";
 import { listen } from "@tauri-apps/api/event";
-import { useQueueContext } from "../context/context";
+import { SendPayload, SentPayload, useQueueContext } from "../context/context";
+
 export const Send = () => {
-  const [isloading, setIsloading] = useState(false);
-  const { receivers, searchReceivers, addToSendQueue, markSent } =
+  const { receivers, sendQueue, searchReceivers, addToSendQueue, markSent } =
     useQueueContext();
+
   useEffect(() => {
-    let unlisten1 = listen("onSend", (event) => {
+    let unlisten1 = listen<SendPayload>("onSend", (event) => {
       console.log(event.payload);
+      console.log("onSend");
+      addToSendQueue(event.payload);
     });
 
-    let unlisten2 = listen("onSent", (event) => {});
+    let unlisten2 = listen<SentPayload>("onSent", (event) => {
+      console.log(event.payload);
+      console.log("onSent");
+      markSent(event.payload);
+    });
 
     return () => {
       unlisten1.then((f) => f());
       unlisten2.then((f) => f());
     };
   }, []);
+  useEffect(() => {
+    console.log("useEffect");
+    console.log(sendQueue);
+  }, [sendQueue]);
   return (
-    <div className="h-screen pt-12 text-white">
+    <div className=" pt-12 text-white bg-slate-950">
       <button className="flex justify-center w-full">
         refresh
         <svg
@@ -31,10 +41,8 @@ export const Send = () => {
           stroke="currentColor"
           className="w-6 h-6"
           onClick={() => {
-            setIsloading(true);
-            searchReceivers().then(() => {
-              setIsloading(false);
-            });
+            searchReceivers();
+            // setIsloading(false);
           }}
         >
           <path
@@ -44,26 +52,27 @@ export const Send = () => {
           />
         </svg>
       </button>
-      {isloading ? (
+      {/* {isloading ? (
         <div className="flex items-center justify-center text-white">
           <div className="h-4 w-4 border-2 border-x-blue-400 animate-spin rounded-full"></div>
         </div>
       ) : (
         <></>
-      )}
-      <>
+      )} */}
+      <div>
         {receivers.map((receiver, idx) => {
           return (
             <div key={idx}>
-              {SenderAtom({
-                ip: receiver[0],
-                port: receiver[1],
-                userName: receiver[2],
-              })}
+              <SenderAtom
+                ip={receiver[0]}
+                port={receiver[1]}
+                userName={receiver[2]}
+                sendQueue={sendQueue}
+              ></SenderAtom>
             </div>
           );
         })}
-      </>
+      </div>
     </div>
   );
 };

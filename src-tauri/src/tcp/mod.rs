@@ -1,9 +1,9 @@
 use std::sync::mpsc;
 
-use tauri::{api::dialog, Window};
+use tauri::{api::dialog, window, Window};
 use tokio::{io::{ copy, AsyncReadExt, AsyncWriteExt}, net::{TcpListener, TcpStream}};
 
-use crate::{ utils::{create_or_incnum, padding, remove_padding }, ReceivePayload, ReceivedPayload};
+use crate::{ utils::{create_or_incnum, padding, remove_padding }, ReceivePayload, ReceivedPayload, SendPayload, SentPayload};
 
 
 
@@ -64,7 +64,7 @@ impl<'a> Sender<'a>{
        Ok(stream)
     }
 
-    async fn handle_transfer(file_path:&str,stream:&mut tokio::net::TcpStream,sender_name:&str)->Result<(), Box<dyn std::error::Error>>{
+    async fn handle_transfer(file_path:&str,stream:&mut tokio::net::TcpStream,sender_name:&str,receiver_ip:String,window:Window)->Result<(), Box<dyn std::error::Error>>{
         let file_name = std::path::Path::new(file_path).file_name().unwrap().to_str().unwrap();
         let file_name = padding(file_name.to_string());
         //chech the file exists or not
@@ -72,23 +72,29 @@ impl<'a> Sender<'a>{
         //then sending file_name
         stream.write_all(file_name.as_bytes()).await?;
         //sending sender_name
+        let file_name0=file_name.clone();
+        let receiver_ip0 = receiver_ip.clone();
+        window.emit("onSend", SendPayload{file_name:file_name0,receiver_ip:receiver_ip0}).unwrap();
         stream.write_all(padding(sender_name.to_string()).as_bytes()).await?;
         //then sending data
         let mut file_reader = tokio::io::BufReader::new(file);
         let bytes_transferred = copy(&mut file_reader,  stream).await?;
+        window.emit("onSent", SentPayload{file_name,receiver_ip,bytes_sent:bytes_transferred}).unwrap();
         println!("Transferred {} bytes.", bytes_transferred);
         Ok(())
     }
 
-    pub async fn send(&mut self)->Result<(),Box<dyn std::error::Error>>{
+    pub async fn send(&mut self,window:Window)->Result<(),Box<dyn std::error::Error>>{
         let mut handles = vec![];
         let mut i=1;
         while self.files.len()!=0{
             let mut stream = self.connect_nth_stream(i as i32).await?;
             let file_path = self.files.pop().unwrap().to_string();
             let sender_name = self.name.to_string();
+            let windows = window.clone();
+            let receiver_ip = self.receiver_ip.to_owned();
             let handle =tokio::spawn(async move{
-                Self::handle_transfer(file_path.as_str(),&mut stream,sender_name.as_str()).await.unwrap();
+                Self::handle_transfer(file_path.as_str(),&mut stream,sender_name.as_str(),receiver_ip,windows).await.unwrap();
             });
             handles.push(handle);
             i+=1;
