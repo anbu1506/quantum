@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { SenderAtom } from "./SenderAtom";
 import { listen } from "@tauri-apps/api/event";
 import { SendPayload, SentPayload, useQueueContext } from "../context/context";
+import { ConnectManually } from "./ConnectManually";
 
 export const Send = () => {
   const {
@@ -78,6 +79,9 @@ export const Send = () => {
             </div>
           );
         })}
+        <div>
+          <ConnectManually></ConnectManually>
+        </div>
       </div>
     </div>
   );

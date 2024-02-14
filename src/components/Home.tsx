@@ -1,8 +1,18 @@
+import { invoke } from "@tauri-apps/api";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 export const Home = () => {
+  const [ip, setIp] = useState<String>("");
+  const [port, setPort] = useState<String>("");
+  useEffect(() => {
+    invoke("get_addr").then((res) => {
+      setIp((res as String[])[0]);
+      setPort((res as String[])[1]);
+    });
+  });
   return (
-    <div className="h-screen bg-slate-950 grid grid-rows-2 text-white">
+    <div className="h-screen bg-slate-950 grid grid-rows-3 text-white ">
       <div className="flex items-center justify-center">
         <Link
           to={"/send"}
@@ -19,6 +29,22 @@ export const Home = () => {
         >
           Receive
         </Link>
+      </div>
+      <div className="flex flex-col items-center justify-center text-white gap-3">
+        <div className="flex gap-5 text-gray-600">
+          <p>IP {ip}</p>
+          <p>Port {port}</p>
+        </div>
+        <p className="flex font-normal">
+          <img
+            src="./copyright.svg"
+            alt="hello"
+            height={24}
+            width={24}
+            className="rounded-full mr-5"
+          />
+          All rights reserved
+        </p>
       </div>
     </div>
   );

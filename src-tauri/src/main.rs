@@ -1,5 +1,6 @@
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+use local_ip_address::linux::local_ip;
 use mdns::mdns_scanner;
 use tauri:: Window;
 
@@ -28,6 +29,19 @@ struct SentPayload{
     receiver_ip:String,
     bytes_sent:u64
 }
+#[tauri::command]
+async fn handle_manual_connect(ip:String,port:String)->i32{
+    match tokio::net::TcpStream::connect(format!("{}:{}",ip,port)).await{
+        Ok(_stream)=>{
+            200
+        }
+        Err(_e)=>{
+            404
+        }
+    
+    }
+}
+
 #[tauri::command]
 async fn send(window:Window,receiver_ip:String,receiver_port:String){
     let mut  sender = tcp::Sender::new();
@@ -59,6 +73,13 @@ async fn send(window:Window,receiver_ip:String,receiver_port:String){
     // });
 }
 
+#[tauri::command]
+async fn get_addr()->(String, String){
+    let port = unsafe{PORT};
+    let ip = local_ip().unwrap();
+    (ip.to_string(),port.to_string())
+}
+
 async fn find_unused_port() -> u16 {
     let mut port = 8000 as i32;
     loop {
@@ -87,7 +108,7 @@ async fn main() {
     let _svc = responder.register("_fileshare._tcp".into(),"_fileshare._tcp.local".into(),port,&["hello anbu"]);
     
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![mdns_scanner,receive,send])
+        .invoke_handler(tauri::generate_handler![mdns_scanner,receive,send,handle_manual_connect,get_addr])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -42,6 +42,7 @@ type MyContextType = {
   markReceived: (payload: ReceivedPayload) => void;
   searchReceivers: () => void;
   // getSendQueue: (receiver_ip: String) => ReceiveQueue[];
+  pushReceiver: (receiver: Receivers) => void;
   addToSendQueue: (payload: SendPayload) => void;
   markSent: (payload: SentPayload) => void;
 };
@@ -82,21 +83,21 @@ export const QueueContextProvider = ({
       return newQueue;
     });
   };
-
+  function rowExists(array: Receivers[], row: Receivers) {
+    for (let existingRow of array) {
+      if (
+        existingRow[0] === row[0] &&
+        existingRow[1] === row[1] &&
+        existingRow[2] === row[2]
+      ) {
+        return true; // Row already exists
+      }
+    }
+    return false; // Row does not exist
+  }
   const searchReceivers = () => {
     setIsSearching(true);
-    function rowExists(array: Receivers[], row: Receivers) {
-      for (let existingRow of array) {
-        if (
-          existingRow[0] === row[0] &&
-          existingRow[1] === row[1] &&
-          existingRow[2] === row[2]
-        ) {
-          return true; // Row already exists
-        }
-      }
-      return false; // Row does not exist
-    }
+
     invoke("mdns_scanner")
       .then((res) => {
         setReceivers((prev) => {
@@ -115,6 +116,13 @@ export const QueueContextProvider = ({
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const pushReceiver = (receiver: Receivers) => {
+    setReceivers((prev) => {
+      if (rowExists(prev, receiver)) return prev;
+      return [...prev, receiver];
+    });
   };
   const addToSendQueue = (payload: SendPayload) => {
     setSendQueue((prev) => {
@@ -163,6 +171,7 @@ export const QueueContextProvider = ({
     searchReceivers,
     addToSendQueue,
     markSent,
+    pushReceiver,
   };
   return (
     <queueContext.Provider value={contextValue}>
