@@ -1,51 +1,16 @@
 import { useEffect, useState } from "react";
 
-import { appWindow } from "@tauri-apps/api/window";
-import { listen } from "@tauri-apps/api/event";
-import {
-  ReceivePayload,
-  ReceivedPayload,
-  useQueueContext,
-} from "../context/context";
-import { invoke } from "@tauri-apps/api";
+import { useQueueContext } from "../context/context";
 
 export const Receive = () => {
-  const { receiveQueue, addToReceiveQueue, markReceived } = useQueueContext();
+  const { receiveQueue } = useQueueContext();
 
   const [isLisening, setIsListening] = useState(receiveQueue.length === 0);
 
   useEffect(() => {
-    invoke("receive").catch((err) => {
-      console.log(err);
-    });
-
-    return () => {
-      appWindow.emit("stop_receiver").then(() => console.log("server stopped"));
-    };
-  }, []);
-
-  useEffect(() => {
-    const unlisten1 = listen<ReceivePayload>("onReceive", (event) => {
-      console.log("hi");
-      setIsListening(false);
-      addToReceiveQueue(event.payload);
-    });
-
-    const unlisten2 = listen<ReceivedPayload>("onReceived", (event) => {
-      console.log("hello");
-      console.log(event.payload);
-      markReceived(event.payload);
-    });
-
-    return () => {
-      unlisten1.then((f) => f());
-      unlisten2.then((f) => f());
-    };
-  }, []);
-
-  useEffect(() => {
     console.log("receivequeue changed");
     console.log(receiveQueue);
+    setIsListening(receiveQueue.length === 0);
   }, [receiveQueue]);
 
   return (
