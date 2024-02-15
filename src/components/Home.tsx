@@ -35,16 +35,7 @@ export const Home = () => {
           <p>IP {ip}</p>
           <p>Port {port}</p>
         </div>
-        <p className="flex font-normal">
-          <img
-            src="./copyright.svg"
-            alt="hello"
-            height={24}
-            width={24}
-            className="rounded-full mr-5"
-          />
-          All rights reserved
-        </p>
+        <p className="flex font-normal">&copy; All rights reserved</p>
       </div>
     </div>
   );
