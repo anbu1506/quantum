@@ -93,6 +93,7 @@ impl<'a> Sender<'a>{
             let sender_name = self.name.to_string();
             let windows = window.clone();
             let receiver_ip = self.receiver_ip.to_owned();
+            stream.write_i32(1).await?;//indicating that a 'file' is coming
             let handle =tokio::spawn(async move{
                 Self::handle_transfer(file_path.as_str(),&mut stream,sender_name.as_str(),receiver_ip,windows).await.unwrap();
             });
@@ -138,14 +139,23 @@ impl<'a> Receiver<'a>{
             let windows = window.clone();
             let (mut stream, _) = listener.accept().await?;
             println!("connection accepted from sender {}",stream.peer_addr()?);
-            let handle =tokio::spawn(async move{
-                Self::receive(&mut stream,windows).await.unwrap()
-            });
+            let types = stream.read_i32().await?;
+            if types==1{
+                println!("receiving file");
+                let handle =tokio::spawn(async move{
+                    Self::receive_file(&mut stream,windows).await.unwrap()
+                });
+
             handles.push(handle);
+            }
+            else if types==2 {
+                println!("receied text");
+                Self::receive_txt(&mut stream, windows).await?;
+            }
         }
     }
     
-    async fn receive(stream:& mut TcpStream,window: Window)->Result<String, Box<dyn std::error::Error>>{
+    async fn receive_file(stream:& mut TcpStream,window: Window)->Result<String, Box<dyn std::error::Error>>{
         
         let mut file_name = [0u8; 255];
         stream.read_exact(&mut file_name).await?;
@@ -166,5 +176,12 @@ impl<'a> Receiver<'a>{
         println!("received payload {:?}",received_payload);
         window.emit("onReceived",received_payload).unwrap();
         Ok(file_name)
+    }
+
+    async fn receive_txt(stream:& mut TcpStream,window: Window)->Result<(), Box<dyn std::error::Error>>{
+        let mut data = String::new();
+        stream.read_to_string(& mut data).await?;
+        window.emit("onTextReceive", data).unwrap();
+        Ok(())
     }
 }

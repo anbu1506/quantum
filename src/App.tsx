@@ -13,8 +13,9 @@ import {
   ReceivedPayload,
   useQueueContext,
 } from "./context/context";
+import { GetText } from "./components/GetText";
 function App() {
-  const { addToReceiveQueue, markReceived } = useQueueContext();
+  const { addToReceiveQueue, markReceived, addText } = useQueueContext();
   useEffect(() => {
     invoke("receive").catch((err) => {
       console.log(err);
@@ -35,10 +36,14 @@ function App() {
       console.log(event.payload);
       markReceived(event.payload);
     });
-
+    const unlisten3 = listen<String>("onTextReceive", (event) => {
+      console.log("onTextReceive");
+      addText(event.payload);
+    });
     return () => {
       unlisten1.then((f) => f());
       unlisten2.then((f) => f());
+      unlisten3.then((f) => f());
     };
   }, []);
   return (
@@ -50,6 +55,7 @@ function App() {
             <Route path="/" element={<Home />}></Route>
             <Route path="/send" element={<Send />}></Route>
             <Route path="/receive" element={<Receive />}></Route>
+            <Route path="/clipboard" element={<GetText />}></Route>
           </Routes>
         </Router>
       </div>

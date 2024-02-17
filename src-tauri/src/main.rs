@@ -3,6 +3,7 @@
 use local_ip_address::linux::local_ip;
 use mdns::mdns_scanner;
 use tauri:: Window;
+use tokio::io::AsyncWriteExt;
 
 static mut PORT: u16 = 0;
 
@@ -97,6 +98,17 @@ async fn find_unused_port() -> u16 {
     port as u16
 }
 
+#[tauri::command]
+async fn send_txt(receiver_ip:String,receiver_port:String,text:String)->String{
+
+    let mut sender = tokio::net::TcpStream::connect(format!("{}:{}",receiver_ip,receiver_port)).await.unwrap();
+    let buf = text.as_bytes();
+    println!("sending text to receiver");
+    sender.write_i32(2).await.unwrap();//indicating that a 'text' is coming
+    sender.write_all(buf).await.unwrap();
+    "sent".to_string()
+}
+
 mod tcp;
 mod mdns;
 mod utils;
@@ -108,7 +120,7 @@ async fn main() {
     let _svc = responder.register("_fileshare._tcp".into(),"_fileshare._tcp.local".into(),port,&["hello anbu"]);
     
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![mdns_scanner,receive,send,handle_manual_connect,get_addr])
+        .invoke_handler(tauri::generate_handler![mdns_scanner,receive,send,handle_manual_connect,get_addr,send_txt])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -34,6 +34,8 @@ export type SendQueue = SendPayload &
     have_sent: boolean;
   };
 type MyContextType = {
+  text: String[];
+  addText: (text: String) => void;
   receiveQueue: ReceiveQueue[];
   sendQueue: SendQueue[];
   receivers: Receivers[];
@@ -58,6 +60,7 @@ export const QueueContextProvider = ({
   const [sendQueue, setSendQueue] = useState<SendQueue[]>([]);
   const [receivers, setReceivers] = useState<Receivers[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [text, setText] = useState<String[]>([]);
   const addToReceiveQueue = (item: ReceivePayload) => {
     setReceiveQueue((prev) => {
       return [...prev, { ...item, have_received: false, bytes_received: 0 }];
@@ -153,6 +156,12 @@ export const QueueContextProvider = ({
     });
   };
 
+  const addText = (text: String) => {
+    setText((prev) => {
+      return [...prev, text];
+    });
+  };
+
   // const getSendQueue(receiver_ip:String) =>{
   //   setSendQueue((prev)=>{
   //     prev.filter((files)=>{
@@ -162,6 +171,7 @@ export const QueueContextProvider = ({
   //   })
   // }
   const contextValue: MyContextType = {
+    text,
     receiveQueue,
     sendQueue,
     receivers,
@@ -172,6 +182,7 @@ export const QueueContextProvider = ({
     addToSendQueue,
     markSent,
     pushReceiver,
+    addText,
   };
   return (
     <queueContext.Provider value={contextValue}>

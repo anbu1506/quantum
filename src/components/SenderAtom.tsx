@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 import { SendQueue } from "../context/context";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Model } from "./Model";
 
 export const SenderAtom = ({
   userName,
@@ -13,6 +14,7 @@ export const SenderAtom = ({
   ip: String;
   sendQueue: SendQueue[];
 }) => {
+  const [showModal, setShowModal] = useState(false);
   useEffect(() => {
     console.log("SenderAtom");
     console.log(sendQueue);
@@ -21,6 +23,14 @@ export const SenderAtom = ({
   const myQueue = sendQueue.filter((transaction) => {
     return transaction.receiver_ip === ip;
   });
+
+  const sendTxt = (text: String) => {
+    invoke("send_txt", { receiverIp: ip, receiverPort: port, text }).catch(
+      () => {
+        console.log;
+      }
+    );
+  };
   return (
     <div className=" bg-white mx-5 my-4 rounded-sm text-black shadow-xl">
       <div className="flex flex-col h-full">
@@ -83,8 +93,23 @@ export const SenderAtom = ({
               );
             }}
           >
-            Send
+            Send File
           </button>
+          <button
+            onClick={() => {
+              setShowModal(true);
+            }}
+            className=" bg-indigo-900   mx-3 rounded-md px-2 py-1 shadow-xl shadow-blue-800"
+          >
+            send txt
+          </button>
+          <Model
+            showModal={showModal}
+            setShowModal={(is) => {
+              setShowModal(is);
+            }}
+            sendTxt={sendTxt}
+          ></Model>
         </div>
       </div>
     </div>
