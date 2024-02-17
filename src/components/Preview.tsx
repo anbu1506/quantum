@@ -50,7 +50,9 @@ export const Preview = ({ text }: { text: String }) => {
           </svg>
         )}
       </div>
-      <pre className="text-blue-400 border-2 p-2 border-gray-400">{text}</pre>
+      <pre className="text-blue-400 border-2 p-2 border-gray-400 overflow-auto">
+        {text}
+      </pre>
     </div>
   );
 };

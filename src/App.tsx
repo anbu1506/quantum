@@ -14,6 +14,7 @@ import {
   useQueueContext,
 } from "./context/context";
 import { GetText } from "./components/GetText";
+import { confirm } from "@tauri-apps/api/dialog";
 function App() {
   const { addToReceiveQueue, markReceived, addText } = useQueueContext();
   useEffect(() => {
@@ -40,10 +41,30 @@ function App() {
       console.log("onTextReceive");
       addText(event.payload);
     });
+    type AcceptPayload = {
+      event: String;
+      file_name: String;
+      sender_name: String;
+    };
+    const unlisten4 = listen<AcceptPayload>("auth", (event) => {
+      const payload = event.payload;
+      confirm(`receive ${payload.file_name} from ${payload.sender_name}`).then(
+        (e) => {
+          if (e) {
+            console.log("confirm");
+            appWindow.emit(payload.event as string, 1);
+          } else {
+            console.log("deny");
+            appWindow.emit(payload.event as string, 0);
+          }
+        }
+      );
+    });
     return () => {
       unlisten1.then((f) => f());
       unlisten2.then((f) => f());
       unlisten3.then((f) => f());
+      unlisten4.then((f) => f());
     };
   }, []);
   return (

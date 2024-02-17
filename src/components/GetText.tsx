@@ -4,7 +4,7 @@ import { Preview } from "./Preview";
 export const GetText = () => {
   const { text } = useQueueContext();
   return (
-    <div className="pt-20 text-white">
+    <div className="pt-20 text-white bg-slate-950">
       {text.length === 0 ? (
         <div className="text-center">No text received</div>
       ) : null}
