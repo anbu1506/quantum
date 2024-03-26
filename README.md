@@ -1,3 +1,5 @@
+<h1>Quantum - a multithreaded asynchronous file transfer application written in RUST</h1>
+
 <h3>A cross platform desktop app (linux - windows) for file and clipBoard text transfer within local network.</h3>
 
 ![Screenshot_20240326_155951](https://github.com/anbu1506/quantumShare/assets/127207660/7a88b43f-b598-48c3-bded-c12142df43ae)
