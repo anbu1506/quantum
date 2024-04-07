@@ -3,7 +3,6 @@ import { Home } from "./components/Home";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Send } from "./components/Send";
 import { Receive } from "./components/Receive";
-import { Nav } from "./components/Nav";
 import { useEffect } from "react";
 import { invoke } from "@tauri-apps/api";
 import { appWindow } from "@tauri-apps/api/window";
