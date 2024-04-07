@@ -2,12 +2,19 @@
 
 <h3>A cross platform desktop app (linux - windows) for file and clipBoard text transfer within local network.</h3>
 
-![Screenshot_20240326_155951](https://github.com/anbu1506/quantumShare/assets/127207660/7a88b43f-b598-48c3-bded-c12142df43ae)
+![Screenshot_20240407_205247](https://github.com/anbu1506/quantum/assets/127207660/0fba939f-acc1-4c5d-8ca9-4d66f0f8152c)
+
 
 
 <h3>we can search for all available users in the network and we can send files to many people at the same time .</h3>
 
-![Screenshot_20240326_160033](https://github.com/anbu1506/quantumShare/assets/127207660/c1f72aef-fb48-417e-8f72-e4044d739e41)
+
+![Screenshot_20240407_205326](https://github.com/anbu1506/quantum/assets/127207660/7d571f9b-f2eb-4bf6-98dc-791f6bd50090)
+
+<h3>we can even connect manually using the ip address</h3>
+
+![Screenshot_20240407_205331](https://github.com/anbu1506/quantum/assets/127207660/eada5d8f-5baf-4edd-911b-b9b379fafa68)
+
 
 <h3>we can choose files from a file dialog</h3>
 
@@ -19,6 +26,13 @@
 
 <h3>users can track their operations .</h3>
 
-![Screenshot_20240326_160244](https://github.com/anbu1506/quantumShare/assets/127207660/13b2e9eb-aba6-48bf-955e-83d7c35c30dd)
-![Screenshot_20240326_160223](https://github.com/anbu1506/quantumShare/assets/127207660/9de3ddf8-733d-4198-86e4-ed858ff91409)
-![Screenshot_20240326_160210](https://github.com/anbu1506/quantumShare/assets/127207660/5c8d341f-9dd2-4e3a-90f5-e6924fa08366)
+![Screenshot_20240407_205407](https://github.com/anbu1506/quantum/assets/127207660/d232a01c-5dde-4b2b-8ddc-e6a02c061a30)
+
+![Screenshot_20240407_205411](https://github.com/anbu1506/quantum/assets/127207660/0e6d7b6f-6114-44aa-b005-870a35994f31)
+
+![Screenshot_20240407_205537](https://github.com/anbu1506/quantum/assets/127207660/28069f0a-90e4-4063-be3e-a1a09a2bfbd4)
+
+
+
+
+
