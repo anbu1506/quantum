@@ -17,7 +17,7 @@ export const Receive = () => {
   return (
     <>
     <Nav></Nav>
-      <div className=" pt-12 items-center">
+      <div className=" pt-12 items-center bg-appColor">
         {isLisening ? (
           <div className=" text-white  flex items-center justify-center">
             ready to receive ...
