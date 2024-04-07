@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { useQueueContext } from "../context/context";
+import { Nav } from "./Nav";
 
 export const Receive = () => {
   const { receiveQueue } = useQueueContext();
@@ -15,7 +16,8 @@ export const Receive = () => {
 
   return (
     <>
-      <div className=" bg-slate-950 pt-12 items-center">
+    <Nav></Nav>
+      <div className=" pt-12 items-center">
         {isLisening ? (
           <div className=" text-white  flex items-center justify-center">
             ready to receive ...
@@ -54,8 +56,8 @@ export const Receive = () => {
                   </div>
                   {transaction.have_received ? (
                     <div className="px-4 text-green-600">
-                      received {transaction.bytes_received.toString()} bytes
-                      from {transaction.file_name}
+                      received {transaction.file_name} {transaction.bytes_received.toString()} bytes
+                      from {transaction.sender_name}
                     </div>
                   ) : (
                     <></>

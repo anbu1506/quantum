@@ -13,7 +13,7 @@ export const Preview = ({ text }: { text: String }) => {
     }
   };
   return (
-    <div className="bg-gray-900 text-white mx-4 my-3 p-2">
+    <div className="bg-buttonColor text-white mx-4 my-3 p-2 rounded-2xl">
       <div className="flex justify-between text-gray-300  pb-1 mb-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +50,7 @@ export const Preview = ({ text }: { text: String }) => {
           </svg>
         )}
       </div>
-      <pre className="text-blue-400 border-2 p-2 border-gray-400 overflow-auto">
+      <pre className="text-blue-400 p-2 overflow-auto rounded-2xl">
         {text}
       </pre>
     </div>

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export const Nav = () => {
   return (
-    <div className="fixed top-0 left-0 h-12 bg-black items-center flex w-full">
+    <div className="fixed top-0 left-0 h-12 items-center flex w-full bg-appColor">
       <Link to="/" className="text-white flex gap-1">
         <svg
           xmlns="http://www.w3.org/2000/svg"
