@@ -69,9 +69,9 @@ function App() {
   }, []);
   return (
     <>
-      <div className="bg-slate-950 h-screen">
+      <div className=" h-screen">
         <Router>
-          <Nav></Nav>
+          {/* <Nav></Nav> */}
           <Routes>
             <Route path="/" element={<Home />}></Route>
             <Route path="/send" element={<Send />}></Route>

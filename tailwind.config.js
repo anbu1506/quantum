@@ -2,7 +2,12 @@
 export default {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      colors:{
+        appColor:"#192028",
+        buttonColor:"#212A31",
+      }
+    },
   },
   darkMode: "class",
   plugins: [],
